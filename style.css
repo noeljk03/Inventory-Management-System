@@ -1,0 +1,320 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --sidebar-bg: #1e1e2e;
+    --accent: #6366f1;
+    --bg: #f8fafc;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+    --sidebar-width: 240px;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-dark);
+}
+
+.app-container {
+    display: flex;
+    /* side by side layout */
+    min-height: 100vh;
+    /* full screen height */
+}
+
+.brand {
+    padding: 1.5rem;
+    /* breathing room around "IMS" */
+    border-bottom: 1px solid #2d2d44;
+    /* a subtle divider line below logo */
+}
+
+.app-title {
+    color: var(--accent);
+    /* that purple/indigo color */
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    /* spreads letters apart: I  M  S */
+    text-transform: uppercase;
+    /* forces capital letters */
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    /* take up all remaining space */
+    padding: 2rem;
+}
+
+.nav-list {
+    list-style: none;
+    /* removes the bullet points • from <ul> */
+    padding: 1rem 0;
+    /* space above and below the list */
+}
+
+.nav-link {
+    display: flex;
+    /* puts icon + text side by side */
+    align-items: center;
+    /* vertically centers them */
+    gap: 0.75rem;
+    /* space between icon and text */
+    padding: 0.75rem 1.5rem;
+    /* clickable area size */
+    color: #a0a0b8;
+    /* muted light color for inactive links */
+    text-decoration: none;
+    /* removes the underline from <a> tags */
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    /* smooth animation on hover */
+}
+
+.nav-link:hover {
+    background-color: #2d2d44;
+    /* subtle highlight on hover */
+    color: var(--white);
+    /* text goes bright white */
+    border-left: 3px solid var(--accent);
+    /* colored left border accent */
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* pushes title left, date right */
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.date {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 equal columns */
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    /* label on top, number below */
+    gap: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.inventory-section {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    /* removes gaps between table cells */
+}
+
+.inventory-table th {
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.inventory-table td {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.inventory-table tbody tr:hover {
+    background-color: #f8fafc;
+    /* subtle row highlight on hover */
+}
+
+.action-btn {
+    padding: 0.35rem 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-right: 0.25rem;
+}
+
+.edit-btn {
+    background-color: #e0e7ff;
+    /* light indigo background */
+    color: #4338ca;
+    /* dark indigo text */
+}
+
+.delete-btn {
+    background-color: #fee2e2;
+    /* light red background */
+    color: #dc2626;
+    /* dark red text */
+}
+
+.add-item-section {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-top: 1.5rem;
+}
+
+.item-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.6rem 0.875rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    background-color: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--accent);
+    background-color: var(--white);
+}
+
+.add-btn {
+    align-self: flex-start;
+    padding: 0.65rem 1.5rem;
+    background-color: var(--accent);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-btn:hover {
+    background-color: #4f46e5;
+}
+
+.nav-link.active {
+    background-color: #2d2d44;
+    color: var(--white);
+    border-left: 3px solid var(--accent);
+}
+
+/* Hide all page sections by default */
+.page-section {
+    display: none;
+}
+
+/* Show only the visible one */
+.page-section.visible {
+    display: block;
+}
+
+.low-stock-row {
+    background-color: #fff7ed;
+    /* a soft amber/orange tint */
+}
+
+.low-stock-row td {
+    color: #c2410c;
+    /* burnt orange text */
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.search-input {
+    padding: 0.5rem 0.875rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+}
