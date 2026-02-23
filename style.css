@@ -288,6 +288,12 @@ body {
     display: block;
 }
 
+/* Override for the dashboard: it needs grid, not block */
+.stats-cards.visible {
+    display: grid;
+    /* ← specificity score: 20, same as above BUT... */
+}
+
 .low-stock-row {
     background-color: #fff7ed;
     /* a soft amber/orange tint */
@@ -317,4 +323,27 @@ body {
 
 .search-input:focus {
     border-color: var(--accent);
+}
+
+.inventory-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.export-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--white);
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+    background-color: var(--accent);
+    color: var(--white);
 }

@@ -44,7 +44,7 @@
         <main class="main-content">
             <header class="topbar">
                 <h1 class="page-title" id="page-title">Dashboard</h1>
-                <span class="date">14th February 2026</span>
+                <span class="date" id="current-date">14th February 2026</span>
             </header>
 
 
@@ -66,8 +66,12 @@
             <section class="inventory-section page-section" id="inventory">
                 <div class="inventory-header">
                     <h2 class="section-title">Inventory List</h2>
-                    <input type="text" id="search-input" class="search-input" placeholder="Search items...">
+                    <div class="inventory-actions">
+                        <input type="text" id="search-input" class="search-input" placeholder="Search items...">
+                        <button id="export-btn" class="export-btn">Export CSV</button>
+                    </div>
                 </div>
+
                 <table class="inventory-table">
                     <thead>
                         <tr>
