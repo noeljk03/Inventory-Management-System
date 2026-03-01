@@ -1,3 +1,6 @@
+<?php require_once 'auth.php'; ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,14 +41,18 @@
                         </a>
                     </li>
                 </ul>
-            </nav>
+            </nav>  
         </aside>
 
         <main class="main-content">
             <header class="topbar">
-                <h1 class="page-title" id="page-title">Dashboard</h1>
-                <span class="date" id="current-date">14th February 2026</span>
-            </header>
+    <h1 class="page-title" id="page-title">Dashboard</h1>
+    <div class="topbar-right">
+        <span class="date" id="current-date"></span>
+        <span class="logged-in-user">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>
+        <a href="logout.php" class="logout-btn">Logout</a>
+    </div>
+</header>
 
 
             <section class="stats-cards page-section visible" id="dashboard">

@@ -1,4 +1,3 @@
-alert('JS is loading!');
 const API = 'http://localhost/ims/api/items.php';
 
 // ── Navigation ────────────────────────────────────────────

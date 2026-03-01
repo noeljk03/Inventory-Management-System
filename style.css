@@ -266,6 +266,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    margin-top: 10px;
 }
 
 .add-btn:hover {
@@ -344,6 +345,101 @@ body {
 }
 
 .export-btn:hover {
+    background-color: var(--accent);
+    color: var(--white);
+}
+
+/* ── Auth Pages (Login / Register) ──────────────────────── */
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg);
+}
+
+.auth-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.auth-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 1.75rem;
+    font-size: 0.9rem;
+}
+
+.auth-error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.auth-success {
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.auth-link {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.auth-link a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* ── Topbar right side (username + logout) ───────────────── */
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logged-in-user {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.logout-btn {
+    padding: 0.4rem 0.875rem;
+    background-color: transparent;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
     background-color: var(--accent);
     color: var(--white);
 }
