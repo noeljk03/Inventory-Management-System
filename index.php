@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMS - Inventory Management System</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -55,20 +56,36 @@
 </header>
 
 
-            <section class="stats-cards page-section visible" id="dashboard">
-                <div class="stat-card">
-                    <span class="stat-label">Total Items</span>
-                    <span class="stat-value" id="stat-total-items">0</span>
+            <section class="dashboard-section page-section visible" id="dashboard">
+
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <span class="stat-label">Total Items</span>
+                        <span class="stat-value" id="stat-total-items">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Total Value</span>
+                        <span class="stat-value" id="stat-total-value">$0.00</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Low Stock</span>
+                        <span class="stat-value" id="stat-low-stock">0</span>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">Total Value</span>
-                    <span class="stat-value" id="stat-total-value">$0.00</span>
+
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Stock by Category</h3>
+                        <canvas id="chart-category"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Stock Health</h3>
+                        <canvas id="chart-stock"></canvas>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">Low Stock</span>
-                    <span class="stat-value" id="stat-low-stock">0</span>
-                </div>
+
             </section>
+
 
             <section class="inventory-section page-section" id="inventory">
                 <div class="inventory-header">

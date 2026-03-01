@@ -289,11 +289,38 @@ body {
     display: block;
 }
 
-/* Override for the dashboard: it needs grid, not block */
+/* Dashboard is a plain block — not a grid itself */
+.dashboard-section.visible {
+    display: block;
+}
+
+/* Stat cards grid stays on the inner div */
 .stats-cards.visible {
     display: grid;
-    /* ← specificity score: 20, same as above BUT... */
 }
+
+.stock-add-btn {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: none;
+}
+
+.stock-add-btn:hover {
+    background-color: #15803d;
+    color: white;
+}
+
+.stock-sub-btn {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: none;
+}
+
+.stock-sub-btn:hover {
+    background-color: #b91c1c;
+    color: white;
+}
+
 
 .low-stock-row {
     background-color: #fff7ed;
@@ -442,4 +469,37 @@ body {
 .logout-btn:hover {
     background-color: var(--accent);
     color: var(--white);
+}
+
+/* ── Dashboard Charts ─────────────────────────────────── */
+.charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.chart-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1),
+        0 1px 4px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.chart-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
 }

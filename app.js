@@ -54,15 +54,19 @@ function renderTable(items) {
             <td>${item.category}</td>
             <td>${item.quantity}</td>
             <td>$${parseFloat(item.price).toFixed(2)}</td>
-            <td>
-                <button class="action-btn edit-btn"   data-id="${item.id}">Edit</button>
-                <button class="action-btn delete-btn" data-id="${item.id}">Delete</button>
-            </td>
+           <td>
+    <button class="action-btn stock-add-btn" data-id="${item.id}" data-qty="${item.quantity}">+ Stock</button>
+    <button class="action-btn stock-sub-btn" data-id="${item.id}" data-qty="${item.quantity}">− Stock</button>
+    <button class="action-btn edit-btn"      data-id="${item.id}">Edit</button>
+    <button class="action-btn delete-btn"    data-id="${item.id}">Delete</button>
+</td>
+
         `;
         tableBody.appendChild(row);
     });
 
     updateStats();
+
 }
 
 // ── Stats ─────────────────────────────────────────────────
@@ -78,7 +82,65 @@ function updateStats() {
     document.getElementById('stat-total-items').textContent = totalItems;
     document.getElementById('stat-total-value').textContent = '$' + totalValue.toFixed(2);
     document.getElementById('stat-low-stock').textContent = lowStock;
+
+    updateCharts();
 }
+
+// ── Charts ────────────────────────────────────────────────
+let categoryChart = null;  // keep reference so we can destroy & redraw
+let stockChart = null;
+
+function updateCharts() {
+    // ── Bar chart: count items per category ───
+    const categoryCounts = {};
+    inventory.forEach(function (item) {
+        const cat = item.category;
+        categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    });
+
+    const categoryLabels = Object.keys(categoryCounts);
+    const categoryData = Object.values(categoryCounts);
+
+    if (categoryChart) categoryChart.destroy(); // destroy old chart before redrawing
+    categoryChart = new Chart(document.getElementById('chart-category'), {
+        type: 'bar',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                label: 'Items',
+                data: categoryData,
+                backgroundColor: '#6366f1',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+
+    // ── Doughnut chart: in stock vs low stock ─
+    const lowStock = inventory.filter(function (i) { return parseInt(i.quantity) <= 5; }).length;
+    const inStock = inventory.length - lowStock;
+
+    if (stockChart) stockChart.destroy();
+    stockChart = new Chart(document.getElementById('chart-stock'), {
+        type: 'doughnut',
+        data: {
+            labels: ['In Stock', 'Low Stock'],
+            datasets: [{
+                data: [inStock, lowStock],
+                backgroundColor: ['#22c55e', '#f97316'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            plugins: { legend: { position: 'bottom' } },
+            cutout: '65%'
+        }
+    });
+}
+
 
 // ── Search ────────────────────────────────────────────────
 document.getElementById('search-input').addEventListener('input', function () {
@@ -123,11 +185,55 @@ tableBody.addEventListener('click', function (event) {
         document.querySelector('.add-btn').textContent = 'Update Item';
         document.querySelector('a[href="#add-item"]').click();
     }
+    else if (event.target.classList.contains('stock-add-btn')) {
+        const id = parseInt(event.target.getAttribute('data-id'));
+        const qty = parseInt(event.target.getAttribute('data-qty'));
+
+        const amount = parseInt(prompt('How many units to add?'));
+        if (isNaN(amount) || amount <= 0) return; // cancelled or invalid
+
+        const newQty = qty + amount;
+        adjustStock(id, newQty);
+    }
+
+    else if (event.target.classList.contains('stock-sub-btn')) {
+        const id = parseInt(event.target.getAttribute('data-id'));
+        const qty = parseInt(event.target.getAttribute('data-qty'));
+
+        const amount = parseInt(prompt('How many units to remove?'));
+        if (isNaN(amount) || amount <= 0) return;
+
+        const newQty = Math.max(0, qty - amount); // never go below 0
+        adjustStock(id, newQty);
+    }
+
 });
+function adjustStock(id, newQuantity) {
+    // Find the full item so we keep all its other fields
+    const item = inventory.find(function (i) { return parseInt(i.id) === id; });
+    if (!item) return;
+
+    fetch(API, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id: id,
+            name: item.name,
+            sku: item.sku,
+            category: item.category,
+            quantity: newQuantity,
+            price: item.price
+        })
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            if (data.success) loadInventory();
+        });
+}
+
 
 // ── Form submit (Add or Edit) ─────────────────────────────
 form.addEventListener('submit', function (event) {
-    console.log('form submitted!');
     event.preventDefault();
 
     const payload = {
