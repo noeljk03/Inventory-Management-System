@@ -41,6 +41,13 @@
                             <span class="nav-text">Add Item</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+    <a href="#history" class="nav-link">
+        <span class="nav-icon"></span>
+        <span class="nav-text">History</span>
+    </a>
+</li>
+
                 </ul>
             </nav>  
         </aside>
@@ -92,6 +99,9 @@
                     <h2 class="section-title">Inventory List</h2>
                     <div class="inventory-actions">
                         <input type="text" id="search-input" class="search-input" placeholder="Search items...">
+                        <select id="category-filter" class="category-filter">
+                            <option value="">All Categories</option>
+                        </select>
                         <button id="export-btn" class="export-btn">Export CSV</button>
                     </div>
                 </div>
@@ -99,17 +109,18 @@
                 <table class="inventory-table">
                     <thead>
                         <tr>
-                            <th>Item Name</th>
-                            <th>SKU</th>
-                            <th>Category</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
+                            <th data-sort="name">Item Name <span class="sort-icon">↕</span></th>
+                            <th data-sort="sku">SKU <span class="sort-icon">↕</span></th>
+                            <th data-sort="category">Category <span class="sort-icon">↕</span></th>
+                            <th data-sort="quantity">Quantity <span class="sort-icon">↕</span></th>
+                            <th data-sort="price">Price <span class="sort-icon">↕</span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
+                <div class="pagination" id="pagination"></div>
             </section>
 
             <section class="add-item-section page-section" id="add-item">
@@ -145,8 +156,52 @@
                 </form>
             </section>
 
+            <section class="history-section page-section" id="history">
+    <h2 class="section-title">Activity Log</h2>
+    <table class="inventory-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Action</th>
+                <th>Qty Change</th>
+                <th>Qty After</th>
+                <th>Date &amp; Time</th>
+            </tr>
+        </thead>
+
+        <tbody id="history-body">
+        </tbody>
+    </table>
+
+</section>
+
+
         </main>
     </div>
+    <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modal-title">Item Detail</h2>
+            <button class="modal-close" id="modal-close">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="detail-grid" id="detail-grid"></div>
+            <h3 class="modal-section-title">Transaction History</h3>
+            <table class="inventory-table" id="modal-history-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Qty Change</th>
+                        <th>Qty After</th>
+                        <th>Date &amp; Time</th>
+                    </tr>
+                </thead>
+                <tbody id="modal-history-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
     <script src="app.js"></script>
 </body>
 
