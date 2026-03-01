@@ -608,6 +608,100 @@ body {
     margin-bottom: 0.75rem;
 }
 
+/* ── Chart Controls ──────────────────────────────────── */
+.chart-controls {
+    grid-column: 1 / -1;
+    /* span full width of charts-row grid */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.metric-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.metric-btn {
+    padding: 0.35rem 0.875rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    background: var(--white);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.metric-btn.active,
+.metric-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+}
+
+/* ── Import Button ───────────────────────────────────── */
+.import-btn {
+    padding: 0.5rem 1rem;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1.5px solid #86efac;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.import-btn:hover {
+    background: #15803d;
+    color: white;
+    border-color: #15803d;
+}
+
+/* ── Import Result Toast ─────────────────────────────── */
+.import-toast {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--accent);
+    max-width: 600px;
+}
+
+.import-toast ul {
+    padding-left: 1.25rem;
+    margin-top: 0.25rem;
+}
+
+.drill-back-btn {
+    padding: 0.35rem 0.875rem;
+    border: 1.5px solid var(--accent);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.drill-back-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
 /* Make SKU cells look clickable */
 .sku-link {
     color: var(--accent);

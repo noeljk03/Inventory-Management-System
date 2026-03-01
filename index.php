@@ -81,15 +81,26 @@
                 </div>
 
                 <div class="charts-row">
-                    <div class="chart-card">
-                        <h3 class="chart-title">Stock by Category</h3>
-                        <canvas id="chart-category"></canvas>
-                    </div>
-                    <div class="chart-card">
-                        <h3 class="chart-title">Stock Health</h3>
-                        <canvas id="chart-stock"></canvas>
-                    </div>
-                </div>
+    <div class="chart-controls">
+        <div class="metric-group">
+            <span class="metric-label">View by:</span>
+            <button class="metric-btn active" data-metric="count">Item Count</button>
+            <button class="metric-btn" data-metric="quantity">Total Qty</button>
+            <button class="metric-btn" data-metric="value">Total Value ($)</button>
+        </div>
+        <button class="drill-back-btn" id="drill-back-btn" style="display:none">← Back to Categories</button>
+    </div>
+
+    <div class="chart-card">
+        <h3 class="chart-title" id="chart-category-title">Stock by Category</h3>
+        <canvas id="chart-category"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3 class="chart-title">Stock Health</h3>
+        <canvas id="chart-stock"></canvas>
+    </div>
+</div>
+
 
             </section>
 
@@ -102,9 +113,14 @@
                         <select id="category-filter" class="category-filter">
                             <option value="">All Categories</option>
                         </select>
-                        <button id="export-btn" class="export-btn">Export CSV</button>
+                        <label class="import-btn" for="import-file-input">⬆ Import CSV</label>
+                        <input type="file" id="import-file-input" accept=".csv" style="display:none">
+                        <button id="export-btn" class="export-btn">⬇ Export CSV</button>
                     </div>
                 </div>
+
+                <div id="import-toast" class="import-toast" style="display:none"></div>
+
 
                 <table class="inventory-table">
                     <thead>

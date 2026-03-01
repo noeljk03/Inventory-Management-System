@@ -3,7 +3,9 @@ const TRANSACTIONS_API = 'http://localhost/ims/api/transactions.php';
 const PAGE_SIZE = 10;  // items shown per page
 let currentPage = 1;   // which page we're on
 let activeCategory = '';  // '' = all categories
-
+let chartMetric = 'count'; // 'count' | 'quantity' | 'value'
+let chartDrillCategory = null;    // null = category view, string = drilled-in category
+const IMPORT_API = 'http://localhost/ims/api/import.php';
 
 
 // ── Navigation ────────────────────────────────────────────
@@ -213,45 +215,101 @@ let categoryChart = null;  // keep reference so we can destroy & redraw
 let stockChart = null;
 
 function updateCharts() {
-    // ── Bar chart: count items per category ───
-    const categoryCounts = {};
-    inventory.forEach(function (item) {
-        const cat = item.category;
-        categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-    });
+    const metricLabel = { count: 'Items', quantity: 'Units in Stock', value: 'Total Value ($)' }[chartMetric];
 
-    const categoryLabels = Object.keys(categoryCounts);
-    const categoryData = Object.values(categoryCounts);
+    // ── Compute bar chart data ────────────────────────────
+    let barLabels, barData;
 
-    if (categoryChart) categoryChart.destroy(); // destroy old chart before redrawing
+    if (chartDrillCategory === null) {
+        // ROLL-UP: group all items by category
+        const grouped = {};
+        inventory.forEach(function (item) {
+            const cat = item.category;
+            if (!grouped[cat]) grouped[cat] = { count: 0, quantity: 0, value: 0 };
+            grouped[cat].count += 1;
+            grouped[cat].quantity += parseInt(item.quantity);
+            grouped[cat].value += parseFloat(item.price) * parseInt(item.quantity);
+        });
+        barLabels = Object.keys(grouped);
+        barData = barLabels.map(function (cat) { return grouped[cat][chartMetric]; });
+        document.getElementById('chart-category-title').textContent = 'Stock by Category';
+        document.getElementById('drill-back-btn').style.display = 'none';
+    } else {
+        // DRILL-DOWN: show individual items inside the clicked category
+        const items = inventory.filter(function (i) { return i.category === chartDrillCategory; });
+        barLabels = items.map(function (i) { return i.name; });
+        barData = items.map(function (i) {
+            if (chartMetric === 'count') return 1;
+            if (chartMetric === 'quantity') return parseInt(i.quantity);
+            return parseFloat(i.price) * parseInt(i.quantity);
+        });
+        document.getElementById('chart-category-title').textContent = chartDrillCategory + ' — Items';
+        document.getElementById('drill-back-btn').style.display = 'block';
+    }
+
+    // ── Bar chart ─────────────────────────────────────────
+    if (categoryChart) categoryChart.destroy();
     categoryChart = new Chart(document.getElementById('chart-category'), {
         type: 'bar',
         data: {
-            labels: categoryLabels,
+            labels: barLabels,
             datasets: [{
-                label: 'Items',
-                data: categoryData,
-                backgroundColor: '#6366f1',
+                label: metricLabel,
+                data: barData,
+                backgroundColor: chartDrillCategory ? '#818cf8' : '#6366f1',
                 borderRadius: 6
             }]
         },
         options: {
+            onClick: function (event, elements) {
+                // Only drill down if we're at top level and user clicked a bar
+                if (elements.length > 0 && chartDrillCategory === null) {
+                    chartDrillCategory = barLabels[elements[0].index];
+                    updateCharts();
+                }
+            },
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: chartMetric === 'value' ? 2 : 0,
+                        callback: chartMetric === 'value'
+                            ? function (v) { return '$' + v.toFixed(2); }
+                            : undefined
+                    }
+                }
+            }
         }
     });
 
-    // ── Doughnut chart: in stock vs low stock ─
-    const lowStock = inventory.filter(function (i) { return parseInt(i.quantity) <= 5; }).length;
-    const inStock = inventory.length - lowStock;
+    // ── Doughnut chart (responds to metric PIVOT) ─────────
+    const relevant = chartDrillCategory
+        ? inventory.filter(function (i) { return i.category === chartDrillCategory; })
+        : inventory;
+
+    const lowItems = relevant.filter(function (i) { return parseInt(i.quantity) <= 5; });
+    const highItems = relevant.filter(function (i) { return parseInt(i.quantity) > 5; });
+
+    let donutIn, donutLow;
+    if (chartMetric === 'count') {
+        donutIn = highItems.length;
+        donutLow = lowItems.length;
+    } else if (chartMetric === 'quantity') {
+        donutIn = highItems.reduce(function (s, i) { return s + parseInt(i.quantity); }, 0);
+        donutLow = lowItems.reduce(function (s, i) { return s + parseInt(i.quantity); }, 0);
+    } else {
+        donutIn = highItems.reduce(function (s, i) { return s + parseFloat(i.price) * parseInt(i.quantity); }, 0);
+        donutLow = lowItems.reduce(function (s, i) { return s + parseFloat(i.price) * parseInt(i.quantity); }, 0);
+    }
 
     if (stockChart) stockChart.destroy();
     stockChart = new Chart(document.getElementById('chart-stock'), {
         type: 'doughnut',
         data: {
-            labels: ['In Stock', 'Low Stock'],
+            labels: ['Healthy Stock', 'Low Stock'],
             datasets: [{
-                data: [inStock, lowStock],
+                data: [donutIn, donutLow],
                 backgroundColor: ['#22c55e', '#f97316'],
                 borderWidth: 0
             }]
@@ -262,6 +320,22 @@ function updateCharts() {
         }
     });
 }
+// ── Chart metric selector ─────────────────────────────────
+document.querySelectorAll('.metric-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.metric-btn').forEach(function (b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        chartMetric = this.dataset.metric;
+        updateCharts(); // SLICE: same data, different measurement
+    });
+});
+
+// ── Drill-back button ─────────────────────────────────────
+document.getElementById('drill-back-btn').addEventListener('click', function () {
+    chartDrillCategory = null; // return to roll-up view
+    updateCharts();
+});
+
 
 
 // ── Search ────────────────────────────────────────────────
@@ -506,3 +580,80 @@ tableBody.addEventListener('click', function (event) {
             overlay.classList.add('open'); // show modal after data loads
         });
 }, true); // ← 'true' = capture phase, so this fires even though tableBody has another click listener
+// ── CSV Import ────────────────────────────────────────────
+document.getElementById('import-file-input').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    this.value = ''; // reset so same file can be re-imported
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const text = e.target.result;
+        const result = parseCSV(text);
+
+        if (result.error) {
+            showImportResult(false, result.error, []);
+            return;
+        }
+
+        fetch(IMPORT_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rows: result.rows })
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                showImportResult(true, data.imported + ' items imported', data.skipped);
+                loadInventory(); // refresh table + charts
+            });
+    };
+    reader.readAsText(file);
+});
+
+function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return { error: 'CSV file is empty or has only a header row.' };
+
+    // Normalise header: lowercase, strip whitespace
+    const headers = lines[0].split(',').map(function (h) { return h.trim().toLowerCase(); });
+
+    const required = ['name', 'sku', 'category', 'quantity', 'price'];
+    const missing = required.filter(function (r) { return !headers.includes(r); });
+
+    if (missing.length > 0) {
+        return {
+            error: 'Missing required columns: ' + missing.join(', ') +
+                '.\n\nExpected header row:\nname,sku,category,quantity,price'
+        };
+    }
+
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+        if (lines[i].trim() === '') continue; // skip blank lines
+        const values = lines[i].split(',');
+        const row = {};
+        headers.forEach(function (header, idx) {
+            row[header] = (values[idx] || '').trim();
+        });
+        rows.push(row);
+    }
+    return { rows: rows };
+}
+
+function showImportResult(success, message, skipped) {
+    let html = success
+        ? '<p style="color:#22c55e;font-weight:600">✅ ' + message + '</p>'
+        : '<p style="color:#ef4444;font-weight:600">❌ ' + message + '</p>';
+
+    if (skipped && skipped.length > 0) {
+        html += '<p style="margin-top:0.5rem;font-weight:600;color:#f97316">' + skipped.length + ' row(s) skipped:</p>';
+        html += '<ul style="margin-top:0.25rem;font-size:0.8rem;color:#64748b">';
+        skipped.forEach(function (err) { html += '<li>' + err + '</li>'; });
+        html += '</ul>';
+    }
+
+    const toast = document.getElementById('import-toast');
+    toast.innerHTML = html;
+    toast.style.display = 'block';
+    setTimeout(function () { toast.style.display = 'none'; }, 8000); // auto-hide after 8s
+}
