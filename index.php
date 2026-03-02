@@ -126,11 +126,17 @@
                     <thead>
                         <tr>
                             <th data-sort="name">Item Name <span class="sort-icon">↕</span></th>
-                            <th data-sort="sku">SKU <span class="sort-icon">↕</span></th>
-                            <th data-sort="category">Category <span class="sort-icon">↕</span></th>
-                            <th data-sort="quantity">Quantity <span class="sort-icon">↕</span></th>
-                            <th data-sort="price">Price <span class="sort-icon">↕</span></th>
-                            <th>Actions</th>
+<th data-sort="sku">SKU <span class="sort-icon">↕</span></th>
+<th data-sort="category">Category <span class="sort-icon">↕</span></th>
+<th data-sort="color">Color <span class="sort-icon">↕</span></th>
+<th data-sort="size">Size <span class="sort-icon">↕</span></th>
+<th data-sort="quantity">Quantity <span class="sort-icon">↕</span></th>
+<th data-sort="price">Price <span class="sort-icon">↕</span></th>
+<th>Location</th>
+<th data-sort="reorder_point">Reorder Pt <span class="sort-icon">↕</span></th>
+<th>Status</th>
+<th>Actions</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -168,12 +174,58 @@
                         <label for="price">Price</label>
                         <input type="number" id="price" name="price" step="0.01" placeholder="e.g., 5.99">
                     </div>
+                    <div class="form-row">
+    <div class="form-group">
+        <label for="color">Color</label>
+        <input type="text" id="color" name="color" placeholder="e.g., Blue">
+    </div>
+    <div class="form-group">
+        <label for="size">Size</label>
+        <input type="text" id="size" name="size" placeholder="e.g., M, 42, XL">
+    </div>
+</div>
+<div class="form-group">
+    <label for="location">Storage Location</label>
+    <input type="text" id="location" name="location" placeholder="e.g., Warehouse A, Shelf 3B">
+</div>
+<div class="form-row">
+    <div class="form-group">
+        <label for="reorder-point">Reorder Point</label>
+        <input type="number" id="reorder-point" name="reorder-point" placeholder="e.g., 10" min="0">
+    </div>
+    <div class="form-group">
+        <label for="last-restock-date">Last Restock Date</label>
+        <input type="date" id="last-restock-date" name="last-restock-date">
+    </div>
+</div>
+<div class="form-group">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+        <option value="In Stock">In Stock</option>
+        <option value="Reserved">Reserved</option>
+        <option value="Damaged">Damaged</option>
+        <option value="Obsolete">Obsolete</option>
+    </select>
+</div>
+
                     <button type="submit" class="add-btn">Add Item</button>
                 </form>
             </section>
 
             <section class="history-section page-section" id="history">
+    <div class="history-header">
     <h2 class="section-title">Activity Log</h2>
+    <div class="history-controls">
+        <label class="history-label">From</label>
+        <input type="date" id="history-from" class="date-input">
+        <label class="history-label">To</label>
+        <input type="date" id="history-to" class="date-input">
+        <button id="history-filter-btn" class="metric-btn active">Filter</button>
+        <button id="history-clear-btn" class="metric-btn">Clear</button>
+        <button id="snapshot-btn" class="drill-back-btn">📸 Snapshot</button>
+    </div>
+</div>
+
     <table class="inventory-table">
         <thead>
             <tr>
@@ -213,6 +265,26 @@
                     </tr>
                 </thead>
                 <tbody id="modal-history-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal-overlay" id="snapshot-overlay">
+    <div class="modal-card" style="max-width:900px">
+        <div class="modal-header">
+            <h2 class="modal-title" id="snapshot-title">Inventory Snapshot</h2>
+            <button class="modal-close" id="snapshot-close">✕</button>
+        </div>
+        <div class="modal-body">
+            <table class="inventory-table" style="min-width:800px">
+                <thead>
+                    <tr>
+                        <th>Item</th><th>SKU</th><th>Category</th>
+                        <th>Color</th><th>Size</th><th>Qty</th>
+                        <th>Price</th><th>Value</th><th>Location</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="snapshot-body"></tbody>
             </table>
         </div>
     </div>

@@ -152,6 +152,8 @@ body {
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    /* horizontal scroll when table is wider than screen */
 }
 
 .section-title {
@@ -163,24 +165,29 @@ body {
 
 .inventory-table {
     width: 100%;
+    min-width: 1100px;
+    /* ensures columns never squish below this */
     border-collapse: collapse;
-    /* removes gaps between table cells */
 }
 
 .inventory-table th {
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--text-muted);
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.75rem;
     border-bottom: 2px solid #f1f5f9;
+    white-space: nowrap;
+    /* keep header text on one line */
 }
 
 .inventory-table td {
-    padding: 0.875rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.75rem 0.75rem;
+    font-size: 0.85rem;
     border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
+    /* prevent cell content from wrapping */
 }
 
 .inventory-table tbody tr:hover {
@@ -667,6 +674,75 @@ body {
     background: #15803d;
     color: white;
     border-color: #15803d;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.status-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-in-stock {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+/* ── History Header ──────────────────────────────────── */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.history-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.history-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.date-input {
+    padding: 0.35rem 0.6rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.date-input:focus {
+    border-color: var(--accent);
+}
+
+.status-reserved {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-damaged {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-obsolete {
+    background: #f1f5f9;
+    color: #64748b;
 }
 
 /* ── Import Result Toast ─────────────────────────────── */

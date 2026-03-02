@@ -6,6 +6,7 @@ let activeCategory = '';  // '' = all categories
 let chartMetric = 'count'; // 'count' | 'quantity' | 'value'
 let chartDrillCategory = null;    // null = category view, string = drilled-in category
 const IMPORT_API = 'http://localhost/ims/api/import.php';
+// ── (payload is built inside the form submit listener below) ─
 
 
 // ── Navigation ────────────────────────────────────────────
@@ -110,18 +111,24 @@ function renderTable(items) {
         const row = document.createElement('tr');
         if (parseInt(item.quantity) <= 5) row.classList.add('low-stock-row');
         row.innerHTML = `
-            <td>${item.name}</td>
-            <td><span class="sku-link" data-id="${item.id}">${item.sku}</span></td>
-            <td>${item.category}</td>
-            <td>${item.quantity}</td>
-            <td>$${parseFloat(item.price).toFixed(2)}</td>
-            <td>
-                <button class="action-btn stock-add-btn" data-id="${item.id}" data-qty="${item.quantity}">+ Stock</button>
-                <button class="action-btn stock-sub-btn" data-id="${item.id}" data-qty="${item.quantity}">− Stock</button>
-                <button class="action-btn edit-btn"      data-id="${item.id}">Edit</button>
-                <button class="action-btn delete-btn"    data-id="${item.id}">Delete</button>
-            </td>
-        `;
+    <td>${item.name}</td>
+    <td><span class="sku-link" data-id="${item.id}">${item.sku}</span></td>
+    <td>${item.category}</td>
+    <td>${item.color || '—'}</td>
+    <td>${item.size || '—'}</td>
+    <td>${item.quantity}</td>
+    <td>$${parseFloat(item.price).toFixed(2)}</td>
+    <td>${item.location || '—'}</td>
+    <td>${item.reorder_point || 0}</td>
+    <td><span class="status-badge status-${(item.status || 'In Stock').toLowerCase().replace(' ', '-')}">${item.status || 'In Stock'}</span></td>
+    <td>
+        <button class="action-btn stock-add-btn" data-id="${item.id}" data-qty="${item.quantity}">+ Stock</button>
+        <button class="action-btn stock-sub-btn" data-id="${item.id}" data-qty="${item.quantity}">− Stock</button>
+        <button class="action-btn edit-btn"      data-id="${item.id}">Edit</button>
+        <button class="action-btn delete-btn"    data-id="${item.id}">Delete</button>
+    </td>
+`;
+
         tableBody.appendChild(row);
     });
 
@@ -161,37 +168,37 @@ function renderPagination(totalPages) {
 }
 
 function loadHistory() {
-    fetch(TRANSACTIONS_API)
+    const from = document.getElementById('history-from').value;
+    const to = document.getElementById('history-to').value;
+
+    let url = TRANSACTIONS_API + '?mode=history';
+    if (from) url += '&from=' + from;
+    if (to) url += '&to=' + to;
+
+    fetch(url)
         .then(function (res) { return res.json(); })
         .then(function (logs) {
             const tbody = document.getElementById('history-body');
             tbody.innerHTML = '';
             if (logs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8">No activity yet.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8">No transactions found.</td></tr>';
                 return;
             }
+            const actionColors = { added: '#22c55e', stock_in: '#6366f1', stock_out: '#f97316', updated: '#64748b', deleted: '#ef4444' };
             logs.forEach(function (log) {
                 const row = document.createElement('tr');
-                const date = new Date(log.created_at).toLocaleString('en-GB');
-                const actionColors = {
-                    added: '#22c55e',
-                    stock_in: '#6366f1',
-                    stock_out: '#f97316',
-                    updated: '#64748b',
-                    deleted: '#ef4444'
-                };
-                const color = actionColors[log.action] || '#64748b';
                 row.innerHTML = `
                     <td>${log.item_name}</td>
-                    <td><span style="color:${color};font-weight:600">${log.action.replace('_', ' ')}</span></td>
+                    <td><span style="color:${actionColors[log.action] || '#64748b'};font-weight:600">${log.action.replace('_', ' ')}</span></td>
                     <td>${log.quantity_change > 0 ? '+' + log.quantity_change : log.quantity_change}</td>
                     <td>${log.quantity_after}</td>
-                    <td>${date}</td>
+                    <td>${new Date(log.created_at).toLocaleString('en-GB')}</td>
                 `;
                 tbody.appendChild(row);
             });
         });
 }
+
 
 // ── Stats ─────────────────────────────────────────────────
 function updateStats() {
@@ -406,8 +413,14 @@ tableBody.addEventListener('click', function (event) {
         document.getElementById('category').value = item.category;
         document.getElementById('quantity').value = item.quantity;
         document.getElementById('price').value = item.price;
+        document.getElementById('color').value = item.color || '';
+        document.getElementById('size').value = item.size || '';
+        document.getElementById('location').value = item.location || '';
+        document.getElementById('reorder-point').value = item.reorder_point || '';
+        document.getElementById('last-restock-date').value = item.last_restock_date || '';
+        document.getElementById('status').value = item.status || 'In Stock';
 
-        editingId = id;   // store the DB id, not array index
+        editingId = id;
         document.querySelector('.add-btn').textContent = 'Update Item';
         document.querySelector('a[href="#add-item"]').click();
     }
@@ -448,7 +461,13 @@ function adjustStock(id, newQuantity) {
             sku: item.sku,
             category: item.category,
             quantity: newQuantity,
-            price: item.price
+            price: item.price,
+            color: item.color || '',
+            size: item.size || '',
+            location: item.location || '',
+            reorder_point: item.reorder_point || 0,
+            last_restock_date: item.last_restock_date || '',
+            status: item.status || 'In Stock'
         })
     })
         .then(function (res) { return res.json(); })
@@ -467,11 +486,17 @@ form.addEventListener('submit', function (event) {
         sku: document.getElementById('sku').value.trim(),
         category: document.getElementById('category').value,
         quantity: parseInt(document.getElementById('quantity').value),
-        price: parseFloat(document.getElementById('price').value)
+        price: parseFloat(document.getElementById('price').value),
+        color: document.getElementById('color').value.trim(),
+        size: document.getElementById('size').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        reorder_point: parseInt(document.getElementById('reorder-point').value) || 0,
+        last_restock_date: document.getElementById('last-restock-date').value,
+        status: document.getElementById('status').value
     };
 
     if (!payload.name || !payload.sku || !payload.category || !payload.quantity || !payload.price) {
-        alert('Please fill in all fields!');
+        alert('Please fill in Name, SKU, Category, Quantity and Price!');
         return;
     }
 
@@ -548,10 +573,24 @@ tableBody.addEventListener('click', function (event) {
     document.getElementById('detail-grid').innerHTML = `
         <div class="detail-item"><label>SKU</label><span>${item.sku}</span></div>
         <div class="detail-item"><label>Category</label><span>${item.category}</span></div>
+        <div class="detail-item"><label>Color</label><span>${item.color || '—'}</span></div>
+        <div class="detail-item"><label>Size</label><span>${item.size || '—'}</span></div>
         <div class="detail-item"><label>Quantity</label><span>${item.quantity}</span></div>
+        <div class="detail-item"><label>Reorder Point</label><span>${item.reorder_point || 0}</span></div>
         <div class="detail-item"><label>Unit Price</label><span>$${parseFloat(item.price).toFixed(2)}</span></div>
         <div class="detail-item"><label>Total Value</label><span>$${(item.quantity * item.price).toFixed(2)}</span></div>
-        <div class="detail-item"><label>Stock Status</label><span style="color:${parseInt(item.quantity) <= 5 ? '#f97316' : '#22c55e'}">${parseInt(item.quantity) <= 5 ? 'Low Stock' : 'In Stock'}</span></div>
+        <div class="detail-item"><label>Location</label><span>${item.location || '—'}</span></div>
+        <div class="detail-item"><label>Last Restock</label><span>${item.last_restock_date || '—'}</span></div>
+        <div class="detail-item"><label>Status</label>
+            <span class="status-badge status-${(item.status || 'In Stock').toLowerCase().replace(' ', '-')}">
+                ${item.status || 'In Stock'}
+            </span>
+        </div>
+        <div class="detail-item"><label>Stock Health</label>
+            <span style="color:${parseInt(item.quantity) <= item.reorder_point ? '#f97316' : '#22c55e'}">
+                ${parseInt(item.quantity) <= item.reorder_point ? '⚠ Below Reorder Point' : '✓ Healthy'}
+            </span>
+        </div>
     `;
 
     // Load this item's transaction history
@@ -657,3 +696,59 @@ function showImportResult(success, message, skipped) {
     toast.style.display = 'block';
     setTimeout(function () { toast.style.display = 'none'; }, 8000); // auto-hide after 8s
 }
+// ── History date filter ───────────────────────────────────
+document.getElementById('history-filter-btn').addEventListener('click', loadHistory);
+document.getElementById('history-clear-btn').addEventListener('click', function () {
+    document.getElementById('history-from').value = '';
+    document.getElementById('history-to').value = '';
+    loadHistory();
+});
+
+// ── Point-in-Time Snapshot ────────────────────────────────
+const snapshotOverlay = document.getElementById('snapshot-overlay');
+document.getElementById('snapshot-close').addEventListener('click', function () {
+    snapshotOverlay.classList.remove('open');
+});
+snapshotOverlay.addEventListener('click', function (e) {
+    if (e.target === snapshotOverlay) snapshotOverlay.classList.remove('open');
+});
+
+document.getElementById('snapshot-btn').addEventListener('click', function () {
+    const date = document.getElementById('history-from').value;
+    if (!date) {
+        alert('Please select a "From" date to view the snapshot for that day.');
+        return;
+    }
+
+    document.getElementById('snapshot-title').textContent = 'Inventory Snapshot — ' + date;
+    document.getElementById('snapshot-body').innerHTML = '<tr><td colspan="10" style="text-align:center;color:#94a3b8">Loading...</td></tr>';
+    snapshotOverlay.classList.add('open');
+
+    fetch(TRANSACTIONS_API + '?mode=snapshot&date=' + date)
+        .then(function (res) { return res.json(); })
+        .then(function (rows) {
+            const tbody = document.getElementById('snapshot-body');
+            tbody.innerHTML = '';
+            if (rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#94a3b8">No inventory data for this date.</td></tr>';
+                return;
+            }
+            rows.forEach(function (item) {
+                const val = (parseFloat(item.price) * parseInt(item.quantity_after)).toFixed(2);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.item_name}</td>
+                    <td>${item.sku || '—'}</td>
+                    <td>${item.category || '—'}</td>
+                    <td>${item.color || '—'}</td>
+                    <td>${item.size || '—'}</td>
+                    <td>${item.quantity_after}</td>
+                    <td>$${parseFloat(item.price).toFixed(2)}</td>
+                    <td>$${val}</td>
+                    <td>${item.location || '—'}</td>
+                    <td><span class="status-badge status-${(item.status || 'In Stock').toLowerCase().replace(' ', '-')}">${item.status || 'In Stock'}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+});

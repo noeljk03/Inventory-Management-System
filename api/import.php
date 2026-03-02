@@ -13,6 +13,25 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../db.php';
 $user_id = (int) $_SESSION['user_id'];
 
+function logTransaction($conn, $user_id, $item_id, $item_name, $action, $qty_change = 0, $qty_after = 0, $snapshot = []) {
+    $item_name = mysqli_real_escape_string($conn, $item_name);
+    $sku       = mysqli_real_escape_string($conn, $snapshot['sku']           ?? '');
+    $category  = mysqli_real_escape_string($conn, $snapshot['category']      ?? '');
+    $price     = (float)                         ($snapshot['price']         ?? 0);
+    $color     = mysqli_real_escape_string($conn, $snapshot['color']         ?? '');
+    $size      = mysqli_real_escape_string($conn, $snapshot['size']          ?? '');
+    $location  = mysqli_real_escape_string($conn, $snapshot['location']      ?? '');
+    $reorder   = (int)                           ($snapshot['reorder_point'] ?? 0);
+    $status    = mysqli_real_escape_string($conn, $snapshot['status']        ?? 'In Stock');
+    $id_val    = $item_id ? $item_id : 'NULL';
+    mysqli_query($conn, "INSERT INTO transactions
+        (user_id, item_id, item_name, action, quantity_change, quantity_after,
+         sku, category, price, color, size, location, reorder_point, status)
+        VALUES ($user_id, $id_val, '$item_name', '$action', $qty_change, $qty_after,
+         '$sku', '$category', $price, '$color', '$size', '$location', $reorder, '$status')");
+}
+
+
 $data = json_decode(file_get_contents('php://input'), true);
 $rows = $data['rows'] ?? [];
 
@@ -72,12 +91,17 @@ foreach ($rows as $index => $row) {
 
     if (mysqli_query($conn, $sql)) {
         $new_id = mysqli_insert_id($conn);
-        // Log the import as a transaction
         $action = $new_id > 0 ? 'added' : 'updated';
-        $log_name = mysqli_real_escape_string($conn, $name);
-        $log_sku  = mysqli_real_escape_string($conn, $sku);
-        mysqli_query($conn, "INSERT INTO transactions (user_id, item_id, item_name, action, quantity_change, quantity_after)
-            VALUES ($user_id, " . ($new_id ?: 'NULL') . ", '$log_name ($log_sku)', '$action', $quantity, $quantity)");
+        logTransaction($conn, $user_id, ($new_id ?: null), "$name ($sku)", $action, $quantity, $quantity, [
+            'sku'           => $sku,
+            'category'      => $category,
+            'price'         => $price,
+            'color'         => '',
+            'size'          => '',
+            'location'      => '',
+            'reorder_point' => 0,
+            'status'        => 'In Stock'
+        ]);
         $imported++;
     } else {
         $skipped[] = "Row $rowNum: Database error — " . mysqli_error($conn);
