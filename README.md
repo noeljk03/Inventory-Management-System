@@ -66,12 +66,13 @@ ims/
 ## Project Highlights
 
 ```
-<img width="1919" height="1199" alt="image" src="https://github.com/user-attachments/assets/1e1023ed-582a-4427-ac7c-a05ac5aa880c" />
-<img width="1917" height="1198" alt="image" src="https://github.com/user-attachments/assets/1c428606-4efa-4aad-b826-3a784086c352" />
-<img width="1919" height="1199" alt="image" src="https://github.com/user-attachments/assets/22f5d01f-16eb-4f36-a216-57fe0dab805a" />
-<img width="1919" height="1199" alt="image" src="https://github.com/user-attachments/assets/43c8fc63-198a-4765-a485-ca91116583f5" />
-<img width="1916" height="1199" alt="image" src="https://github.com/user-attachments/assets/b3f6738a-59ab-498f-9633-581794fb797d" />
-<img width="1917" height="1199" alt="image" src="https://github.com/user-attachments/assets/344a7dea-9bdc-42a2-9c08-600e003406fe" />
+![Register](screenshots/register.png)
+![Login](screenshots/login.png)
+![Dashboard](screenshots/dashboard1.png)
+![Dashboard(continued)](screenshots/dashboard2.png)
+![Inventory](screenshots/inventory.png)
+![Add Item](screenshots/addItem.png)
+![Transaction History](screenshots/transaction.png)
 
 ```
 ---
