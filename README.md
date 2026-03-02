@@ -4,6 +4,26 @@ A full-stack, single-page Inventory Management System built with PHP, MySQL, and
 
 ---
 
+## About
+
+IMS is a web-based inventory management tool designed for small to medium businesses that need to track stock, monitor transactions, and get a clear picture of their inventory at any point in time — without the complexity of enterprise software.
+
+The system runs entirely in the browser as a single-page application. All data is stored in a MySQL database and served through a lightweight PHP REST API. Every action — adding an item, adjusting stock, importing a CSV — is logged to a full audit trail, which can then be used to reconstruct exactly what your inventory looked like on any given date.
+
+**What the system can do:**
+
+- Manage a product catalogue with up to 11 fields per item including location, reorder points, and status
+- Track every stock movement (additions, removals, edits, deletions) with timestamps
+- Show real-time dashboard stats — total items, total inventory value, and low stock count
+- Visualise stock distribution across categories with interactive charts (click a category to drill into individual items)
+- Alert you when items fall at or below their reorder threshold
+- Convert all prices to any major currency using live exchange rates (base: INR)
+- Let you travel back in time — pick any date and the system reconstructs your full inventory snapshot as it was on that day
+- Bulk-import items from CSV and export your current inventory at any time
+- Keep each user's data completely isolated — multiple users can log in without seeing each other's inventory
+
+---
+
 ## Features
 
 - **Inventory CRUD** — Add, edit, delete items with 11 fields (Name, SKU, Category, Color, Size, Quantity, Price, Location, Reorder Point, Last Restock Date, Status)
@@ -65,6 +85,7 @@ ims/
 ```
 ## Screenshots
 
+<<<<<<< HEAD
 ![Register](screenshots/register.png)
 ![Login](screenshots/login.png)
 ![Dashboard](screenshots/dashboard1.png)
@@ -72,6 +93,12 @@ ims/
 ![Inventory](screenshots/inventory.png)
 ![Add Item](screenshots/addItem.png)
 ![Transaction History](screenshots/transaction.png)
+=======
+```
+C:\xampp\htdocs\ims\screenshots\login.png
+C:\xampp\htdocs\ims\screenshots\register.png
+
+>>>>>>> d796d7f86636e39c3ca281258d24c3a241fa5bb1
 
 ---
 
