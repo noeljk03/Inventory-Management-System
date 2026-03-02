@@ -74,20 +74,53 @@ foreach ($rows as $index => $row) {
         continue;
     }
 
+    // ── Read optional extended columns (default to empty/safe values) ─
+    $color    = trim($row['color']             ?? '');
+    $size     = trim($row['size']              ?? '');
+    $location = trim($row['location']          ?? '');
+    $reorder  = isset($row['reorder_point']) && is_numeric($row['reorder_point'])
+                    ? (int) $row['reorder_point'] : 0;
+    $restock  = trim($row['last_restock_date'] ?? '');
+    $status   = trim($row['status']            ?? 'In Stock');
+
+    // Validate status is one of the allowed values
+    $validStatuses = ['In Stock', 'Reserved', 'Damaged', 'Obsolete'];
+    if ($status === '' || !in_array($status, $validStatuses)) {
+        $status = 'In Stock';
+    }
+
     // ── Sanitise and insert ───────────────────────────────
     $name     = mysqli_real_escape_string($conn, $name);
     $sku      = mysqli_real_escape_string($conn, $sku);
     $category = mysqli_real_escape_string($conn, $category);
+    $color    = mysqli_real_escape_string($conn, $color);
+    $size     = mysqli_real_escape_string($conn, $size);
+    $location = mysqli_real_escape_string($conn, $location);
+    $status   = mysqli_real_escape_string($conn, $status);
+    $restock  = mysqli_real_escape_string($conn, $restock);
     $quantity = (int)   $quantity;
     $price    = (float) $price;
+    $restock_val = $restock ? "'$restock'" : 'NULL';
 
-    $sql = "INSERT INTO inventory (name, sku, category, quantity, price, user_id)
-            VALUES ('$name', '$sku', '$category', $quantity, $price, $user_id)
+    $sql = "INSERT INTO inventory
+                (name, sku, category, quantity, price,
+                 color, size, location, reorder_point, last_restock_date, status,
+                 user_id)
+            VALUES
+                ('$name','$sku','$category',$quantity,$price,
+                 '$color','$size','$location',$reorder,$restock_val,'$status',
+                 $user_id)
             ON DUPLICATE KEY UPDATE
-                quantity = VALUES(quantity),
-                price    = VALUES(price),
-                category = VALUES(category),
-                name     = VALUES(name)";
+                name             = VALUES(name),
+                category         = VALUES(category),
+                quantity         = VALUES(quantity),
+                price            = VALUES(price),
+                color            = VALUES(color),
+                size             = VALUES(size),
+                location         = VALUES(location),
+                reorder_point    = VALUES(reorder_point),
+                last_restock_date = VALUES(last_restock_date),
+                status           = VALUES(status)";
 
     if (mysqli_query($conn, $sql)) {
         $new_id = mysqli_insert_id($conn);
@@ -96,17 +129,18 @@ foreach ($rows as $index => $row) {
             'sku'           => $sku,
             'category'      => $category,
             'price'         => $price,
-            'color'         => '',
-            'size'          => '',
-            'location'      => '',
-            'reorder_point' => 0,
-            'status'        => 'In Stock'
+            'color'         => $color,
+            'size'          => $size,
+            'location'      => $location,
+            'reorder_point' => $reorder,
+            'status'        => $status
         ]);
         $imported++;
     } else {
         $skipped[] = "Row $rowNum: Database error — " . mysqli_error($conn);
     }
 }
+
 
 echo json_encode([
     'success'  => true,

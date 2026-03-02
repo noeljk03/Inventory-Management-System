@@ -63,7 +63,7 @@
             <header class="topbar">
     <h1 class="page-title" id="page-title">Dashboard</h1>
     <div class="topbar-right">
-        <span class="date" id="current-date"></span>
+        <span class="date" id="current-date"><?= date('l, F j, Y') ?></span>
         <select id="currency-select" class="currency-select" title="Currency symbol">
     <option value="₹" data-code="INR">₹ INR</option>
     <option value="$" data-code="USD">$ USD</option>

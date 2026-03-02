@@ -29,11 +29,15 @@ fetch('https://api.frankfurter.app/latest?from=INR')
 
 // ── Date with weekday in topbar ───────────────────────────
 (function setDate() {
+    const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
     const now = new Date();
-    document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+    const text = DAYS[now.getDay()] + ', ' + MONTHS[now.getMonth()] +
+        ' ' + now.getDate() + ', ' + now.getFullYear();
+    document.getElementById('current-date').textContent = text;
 }());
+
 
 
 // ── Navigation ────────────────────────────────────────────
@@ -55,11 +59,7 @@ navLinks.forEach(function (link) {
     });
 });
 
-// ── Dynamic Date ──────────────────────────────────────────
-const today = new Date();
-document.getElementById('current-date').textContent = today.toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'long', year: 'numeric'
-});
+
 
 // ── Core State ────────────────────────────────────────────
 let inventory = [];       // will be filled from the database
