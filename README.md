@@ -63,7 +63,18 @@ ims/
     ├── transactions.php   # History log + point-in-time snapshot
     └── import.php         # CSV bulk import
 ```
+## Project Highlights
 
+```
+![Register](screenshots/register.png)
+![Login](screenshots/login.png)
+![Dashboard](screenshots/dashboard1.png)
+![Dashboard(continued)](screenshots/dashboard2.png)
+![Inventory](screenshots/inventory.png)
+![Add Item](screenshots/addItem.png)
+![Transaction History](screenshots/transaction.png)
+
+```
 ---
 
 ## CSV Import Format
