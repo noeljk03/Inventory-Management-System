@@ -66,13 +66,9 @@ ims/
 ## Project Highlights
 
 ```
-![Register](screenshots/register.png)
-![Login](screenshots/login.png)
-![Dashboard](screenshots/dashboard1.png)
-![Dashboard(continued)](screenshots/dashboard2.png)
-![Inventory](screenshots/inventory.png)
-![Add Item](screenshots/addItem.png)
-![Transaction History](screenshots/transaction.png)
+C:\xampp\htdocs\ims\screenshots\login.png
+C:\xampp\htdocs\ims\screenshots\register.png
+
 
 ```
 ---
