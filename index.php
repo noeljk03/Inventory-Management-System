@@ -49,7 +49,14 @@
 </li>
 
                 </ul>
-            </nav>  
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-avatar"><?= strtoupper(substr($_SESSION['username'], 0, 2)) ?></div>
+                <div class="sidebar-user-info">
+                    <span class="sidebar-username"><?= htmlspecialchars($_SESSION['username']) ?></span>
+                    <a href="logout.php" class="sidebar-logout">Logout</a>
+                </div>
+            </div>
         </aside>
 
         <main class="main-content">
@@ -57,8 +64,15 @@
     <h1 class="page-title" id="page-title">Dashboard</h1>
     <div class="topbar-right">
         <span class="date" id="current-date"></span>
-        <span class="logged-in-user">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>
-        <a href="logout.php" class="logout-btn">Logout</a>
+        <select id="currency-select" class="currency-select" title="Currency symbol">
+    <option value="₹" data-code="INR">₹ INR</option>
+    <option value="$" data-code="USD">$ USD</option>
+    <option value="€" data-code="EUR">€ EUR</option>
+    <option value="£" data-code="GBP">£ GBP</option>
+    <option value="¥" data-code="JPY">¥ JPY</option>
+    <option value="₩" data-code="KRW">₩ KRW</option>
+</select>
+
     </div>
 </header>
 
@@ -101,8 +115,36 @@
     </div>
 </div>
 
+                <!-- ── Dashboard Widgets ────────────────────────────────── -->
+                <div class="widgets-row">
+                    <!-- Recently Updated -->
+                    <div class="widget-card widget-recent">
+                        <div class="widget-header">
+                            <span class="widget-title">🕐 Recently Updated</span>
+                        </div>
+                        <ul class="recent-list" id="recent-list"></ul>
+                    </div>
+                    <!-- Alerts + By Category -->
+                    <div class="widget-side">
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <span class="widget-title">⚠ Alerts</span>
+                                <span class="alert-count" id="alert-count">0</span>
+                            </div>
+                            <ul class="alert-list" id="alert-list"></ul>
+                        </div>
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <span class="widget-title">🏷 By Category</span>
+                            </div>
+                            <ul class="category-list" id="category-list"></ul>
+                        </div>
+                    </div>
+                </div>
+
 
             </section>
+
 
 
             <section class="inventory-section page-section" id="inventory">

@@ -8,6 +8,33 @@ let chartDrillCategory = null;    // null = category view, string = drilled-in c
 const IMPORT_API = 'http://localhost/ims/api/import.php';
 // ── (payload is built inside the form submit listener below) ─
 
+// ── Currency (base = INR, live rates from frankfurter.app) ─
+let currencySymbol = localStorage.getItem('currencySymbol') || '₹';
+let conversionRate = 1; // INR → selected currency multiplier
+let liveRates = {};     // populated on page load
+
+fetch('https://api.frankfurter.app/latest?from=INR')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+        liveRates = data.rates;       // { USD: 0.012, EUR: 0.011, ... }
+        liveRates['INR'] = 1;         // add INR itself
+        const saved = localStorage.getItem('currencySymbol') || '₹';
+        const savedCode = localStorage.getItem('currencyCode') || 'INR';
+        conversionRate = liveRates[savedCode] || 1;
+        currencySymbol = saved;
+        updateStats(); // re-render with live rate
+    });
+
+
+
+// ── Date with weekday in topbar ───────────────────────────
+(function setDate() {
+    const now = new Date();
+    document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+}());
+
 
 // ── Navigation ────────────────────────────────────────────
 const navLinks = document.querySelectorAll('.nav-link');
@@ -117,7 +144,7 @@ function renderTable(items) {
     <td>${item.color || '—'}</td>
     <td>${item.size || '—'}</td>
     <td>${item.quantity}</td>
-    <td>$${parseFloat(item.price).toFixed(2)}</td>
+    <td>${currencySymbol}${(parseFloat(item.price) * conversionRate).toFixed(2)}</td>
     <td>${item.location || '—'}</td>
     <td>${item.reorder_point || 0}</td>
     <td><span class="status-badge status-${(item.status || 'In Stock').toLowerCase().replace(' ', '-')}">${item.status || 'In Stock'}</span></td>
@@ -211,10 +238,11 @@ function updateStats() {
     }).length;
 
     document.getElementById('stat-total-items').textContent = totalItems;
-    document.getElementById('stat-total-value').textContent = '$' + totalValue.toFixed(2);
+    document.getElementById('stat-total-value').textContent = currencySymbol + (totalValue * conversionRate).toFixed(2);
     document.getElementById('stat-low-stock').textContent = lowStock;
 
     updateCharts();
+    updateWidgets();
 }
 
 // ── Charts ────────────────────────────────────────────────
@@ -577,8 +605,8 @@ tableBody.addEventListener('click', function (event) {
         <div class="detail-item"><label>Size</label><span>${item.size || '—'}</span></div>
         <div class="detail-item"><label>Quantity</label><span>${item.quantity}</span></div>
         <div class="detail-item"><label>Reorder Point</label><span>${item.reorder_point || 0}</span></div>
-        <div class="detail-item"><label>Unit Price</label><span>$${parseFloat(item.price).toFixed(2)}</span></div>
-        <div class="detail-item"><label>Total Value</label><span>$${(item.quantity * item.price).toFixed(2)}</span></div>
+        <div class="detail-item"><label>Unit Price</label><span>${currencySymbol}${(parseFloat(item.price) * conversionRate).toFixed(2)}</span></div>
+        <div class="detail-item"><label>Total Value</label><span>${currencySymbol}${(item.quantity * item.price * conversionRate).toFixed(2)}</span></div>
         <div class="detail-item"><label>Location</label><span>${item.location || '—'}</span></div>
         <div class="detail-item"><label>Last Restock</label><span>${item.last_restock_date || '—'}</span></div>
         <div class="detail-item"><label>Status</label>
@@ -743,8 +771,8 @@ document.getElementById('snapshot-btn').addEventListener('click', function () {
                     <td>${item.color || '—'}</td>
                     <td>${item.size || '—'}</td>
                     <td>${item.quantity_after}</td>
-                    <td>$${parseFloat(item.price).toFixed(2)}</td>
-                    <td>$${val}</td>
+                    <td>${currencySymbol}${parseFloat(item.price).toFixed(2)}</td>
+                    <td>${currencySymbol}${val}</td>
                     <td>${item.location || '—'}</td>
                     <td><span class="status-badge status-${(item.status || 'In Stock').toLowerCase().replace(' ', '-')}">${item.status || 'In Stock'}</span></td>
                 `;
@@ -752,3 +780,99 @@ document.getElementById('snapshot-btn').addEventListener('click', function () {
             });
         });
 });
+
+// ── Currency picker ────────────────────────────────────────
+(function initCurrencyPicker() {
+    const sel = document.getElementById('currency-select');
+    sel.value = localStorage.getItem('currencySymbol') || '₹';
+    sel.addEventListener('change', function () {
+        const opt = this.options[this.selectedIndex];
+        currencySymbol = opt.value;
+        const code = opt.getAttribute('data-code');
+        conversionRate = liveRates[code] || 1;
+        localStorage.setItem('currencySymbol', currencySymbol);
+        localStorage.setItem('currencyCode', code);
+        updateStats();
+    });
+}());
+
+
+// ── Dashboard Widgets ──────────────────────────────────────
+function updateWidgets() {
+    // ── Recently Updated (last 7 items by array order = newest first) ──
+    const recentList = document.getElementById('recent-list');
+    recentList.innerHTML = '';
+    const recent = inventory.slice(0, 7);
+    if (recent.length === 0) {
+        recentList.innerHTML = '<li class="recent-empty">No items yet.</li>';
+    } else {
+        recent.forEach(function (item) {
+            const isLow = parseInt(item.quantity) <= parseInt(item.reorder_point || 0);
+            const badgeClass = isLow ? 'status-badge status-damaged' : 'status-badge status-in-stock';
+            const badgeText = isLow ? 'Low Stock' : 'In Stock';
+            const li = document.createElement('li');
+            li.className = 'recent-item';
+            li.innerHTML = `
+                <div class="recent-icon">📦</div>
+                <div class="recent-info">
+                    <span class="recent-name">${item.name}</span>
+                    <span class="recent-meta">SKU: ${item.sku} · ${item.category}</span>
+                </div>
+                <div class="recent-right">
+                    <span class="recent-qty">${item.quantity} pcs</span>
+                    <span class="${badgeClass}">${badgeText}</span>
+                </div>
+            `;
+            recentList.appendChild(li);
+        });
+    }
+
+    // ── Alerts (items at or below reorder point) ───────────
+    const alertList = document.getElementById('alert-list');
+    const alertCount = document.getElementById('alert-count');
+    const alerts = inventory.filter(function (item) {
+        return parseInt(item.quantity) <= parseInt(item.reorder_point || 5);
+    });
+    alertCount.textContent = alerts.length;
+    alertList.innerHTML = '';
+    if (alerts.length === 0) {
+        alertList.innerHTML = '<li class="alert-empty">✓ All stock levels healthy</li>';
+    } else {
+        alerts.forEach(function (item) {
+            const out = parseInt(item.quantity) === 0;
+            const li = document.createElement('li');
+            li.className = 'alert-item';
+            li.innerHTML = `
+                <span class="alert-dot" style="background:${out ? '#ef4444' : '#f97316'}"></span>
+                <div class="alert-info">
+                    <span class="alert-name">${item.name}</span>
+                    <span class="alert-meta">${item.quantity} remaining</span>
+                </div>
+                <span class="status-badge ${out ? 'status-damaged' : 'status-reserved'}">${out ? 'Out of Stock' : 'Low Stock'}</span>
+            `;
+            alertList.appendChild(li);
+        });
+    }
+
+    // ── By Category ────────────────────────────────────────
+    const catList = document.getElementById('category-list');
+    catList.innerHTML = '';
+    const catMap = {};
+    inventory.forEach(function (item) {
+        catMap[item.category] = (catMap[item.category] || 0) + 1;
+    });
+    const maxCount = Math.max(...Object.values(catMap), 1);
+    Object.entries(catMap).sort(function (a, b) { return b[1] - a[1]; }).forEach(function (entry) {
+        const pct = Math.round((entry[1] / maxCount) * 100);
+        const li = document.createElement('li');
+        li.className = 'cat-item';
+        li.innerHTML = `
+            <div class="cat-label">
+                <span class="cat-name">${entry[0]}</span>
+                <span class="cat-count">${entry[1]} item${entry[1] !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
+        `;
+        catList.appendChild(li);
+    });
+}
