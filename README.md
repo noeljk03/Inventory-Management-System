@@ -85,7 +85,7 @@ ims/
 ```
 ## Screenshots
 
-<<<<<<< HEAD
+
 ![Register](screenshots/register.png)
 ![Login](screenshots/login.png)
 ![Dashboard](screenshots/dashboard1.png)
@@ -95,8 +95,6 @@ ims/
 ![Transaction History](screenshots/transaction.png)
 =======
 
-
->>>>>>> 
 
 ---
 
