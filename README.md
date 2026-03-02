@@ -94,11 +94,9 @@ ims/
 ![Add Item](screenshots/addItem.png)
 ![Transaction History](screenshots/transaction.png)
 =======
-```
-C:\xampp\htdocs\ims\screenshots\login.png
-C:\xampp\htdocs\ims\screenshots\register.png
 
->>>>>>> d796d7f86636e39c3ca281258d24c3a241fa5bb1
+
+>>>>>>> 
 
 ---
 
